@@ -3,6 +3,77 @@ name: build image
 on: [push, pull_request] # 触发事件
 
 jobs:
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+  build__coredns: #这里是job_id,需要唯一
+    runs-on: ubuntu-latest #指定在什么样的环境下运行该job
+    steps:
+    - uses: actions/checkout@v3 # pull代码到运行服务器上
+    
+    - name: Login to Aliyun Container Registry (ACR)
+      uses: aliyun/acr-login@v1 # 使用阿里云镜像服务action
+      with:
+        login-server: registry.cn-hangzhou.aliyuncs.com # 务必正确填写镜像容器服务的登录地址
+        region-id: cn-hangzhou # 务必正确填写镜像容器服务的登录地址
+        username: "${{ secrets.ALIYUN_ACR_USERNAME }}" # 引用GitHub repo设置的镜像容器服务用户名
+        password: "${{ secrets.ALIYUN_ACR_PASSWORD }}" # 引用GitHub repo设置的镜像容器服务密码, 该密码是在acr中设置的固定密码
+    
+    - name: Read VERSION file
+      id: getversion #这个id在后面的步骤中会使用到, 用于读取这里的变量
+      run: echo "::set-output name=version::$(cat ./coredns/version.txt)" # 用于标记容器版本号, 任何命令都是在仓库的根目录下执行的,要注意路径是否正确, 这里是读取指定目录下的version.txt来作为镜像的tag版本号
+      
+    - name: Get changed files in the coredns folder
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v29.0.7
+      with:
+        files: |
+          coredns/**
+    
+    # 只有指定目录下的文件变化时, 才触发构建, 以免每次提交都会重新所有构建任务
+    - name: Build and Push Docker Image if any file(s) in the coredns folder change
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      run: |
+        docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/coredns:${{ steps.getversion.outputs.version }} ./coredns
+        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/coredns:${{ steps.getversion.outputs.version }}
+        
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+  build__etcd: #这里是job_id,需要唯一
+    runs-on: ubuntu-latest #指定在什么样的环境下运行该job
+    steps:
+    - uses: actions/checkout@v3 # pull代码到运行服务器上
+    
+    - name: Login to Aliyun Container Registry (ACR)
+      uses: aliyun/acr-login@v1 # 使用阿里云镜像服务action
+      with:
+        login-server: registry.cn-hangzhou.aliyuncs.com # 务必正确填写镜像容器服务的登录地址
+        region-id: cn-hangzhou # 务必正确填写镜像容器服务的登录地址
+        username: "${{ secrets.ALIYUN_ACR_USERNAME }}" # 引用GitHub repo设置的镜像容器服务用户名
+        password: "${{ secrets.ALIYUN_ACR_PASSWORD }}" # 引用GitHub repo设置的镜像容器服务密码, 该密码是在acr中设置的固定密码
+    
+    - name: Read VERSION file
+      id: getversion #这个id在后面的步骤中会使用到, 用于读取这里的变量
+      run: echo "::set-output name=version::$(cat ./etcd/version.txt)" # 用于标记容器版本号, 任何命令都是在仓库的根目录下执行的,要注意路径是否正确, 这里是读取指定目录下的version.txt来作为镜像的tag版本号
+      
+    - name: Get changed files in the etcd folder
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v29.0.7
+      with:
+        files: |
+          etcd/**
+    
+    # 只有指定目录下的文件变化时, 才触发构建, 以免每次提交都会重新所有构建任务
+    - name: Build and Push Docker Image if any file(s) in the etcd folder change
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      run: |
+        docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/etcd:${{ steps.getversion.outputs.version }} ./etcd
+        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/etcd:${{ steps.getversion.outputs.version }}
+
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
   build__kube-apiserver: #这里是job_id,需要唯一
     runs-on: ubuntu-latest #指定在什么样的环境下运行该job
     steps:
@@ -33,6 +104,7 @@ jobs:
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-apiserver:${{ steps.getversion.outputs.version }} ./kube-apiserver
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-apiserver:${{ steps.getversion.outputs.version }}
+
 
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
@@ -67,3 +139,110 @@ jobs:
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-controller-manager:${{ steps.getversion.outputs.version }} ./kube-controller-manager
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-controller-manager:${{ steps.getversion.outputs.version }}
+
+
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+  build__kube-proxy: #这里是job_id,需要唯一
+    runs-on: ubuntu-latest #指定在什么样的环境下运行该job
+    steps:
+    - uses: actions/checkout@v3 # pull代码到运行服务器上
+    
+    - name: Login to Aliyun Container Registry (ACR)
+      uses: aliyun/acr-login@v1 # 使用阿里云镜像服务action
+      with:
+        login-server: registry.cn-hangzhou.aliyuncs.com # 务必正确填写镜像容器服务的登录地址
+        region-id: cn-hangzhou # 务必正确填写镜像容器服务的登录地址
+        username: "${{ secrets.ALIYUN_ACR_USERNAME }}" # 引用GitHub repo设置的镜像容器服务用户名
+        password: "${{ secrets.ALIYUN_ACR_PASSWORD }}" # 引用GitHub repo设置的镜像容器服务密码, 该密码是在acr中设置的固定密码
+    
+    - name: Read VERSION file
+      id: getversion #这个id在后面的步骤中会使用到, 用于读取这里的变量
+      run: echo "::set-output name=version::$(cat ./kube-proxy/version.txt)" # 用于标记容器版本号, 任何命令都是在仓库的根目录下执行的,要注意路径是否正确, 这里是读取指定目录下的version.txt来作为镜像的tag版本号
+      
+    - name: Get changed files in the kube-proxy folder
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v29.0.7
+      with:
+        files: |
+          kube-proxy/**
+    
+    # 只有指定目录下的文件变化时, 才触发构建, 以免每次提交都会重新所有构建任务
+    - name: Build and Push Docker Image if any file(s) in the kube-proxy folder change
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      run: |
+        docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-proxy:${{ steps.getversion.outputs.version }} ./kube-proxy
+        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-proxy:${{ steps.getversion.outputs.version }}
+
+
+
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+  build__kube-scheduler: #这里是job_id,需要唯一
+    runs-on: ubuntu-latest #指定在什么样的环境下运行该job
+    steps:
+    - uses: actions/checkout@v3 # pull代码到运行服务器上
+    
+    - name: Login to Aliyun Container Registry (ACR)
+      uses: aliyun/acr-login@v1 # 使用阿里云镜像服务action
+      with:
+        login-server: registry.cn-hangzhou.aliyuncs.com # 务必正确填写镜像容器服务的登录地址
+        region-id: cn-hangzhou # 务必正确填写镜像容器服务的登录地址
+        username: "${{ secrets.ALIYUN_ACR_USERNAME }}" # 引用GitHub repo设置的镜像容器服务用户名
+        password: "${{ secrets.ALIYUN_ACR_PASSWORD }}" # 引用GitHub repo设置的镜像容器服务密码, 该密码是在acr中设置的固定密码
+    
+    - name: Read VERSION file
+      id: getversion #这个id在后面的步骤中会使用到, 用于读取这里的变量
+      run: echo "::set-output name=version::$(cat ./kube-scheduler/version.txt)" # 用于标记容器版本号, 任何命令都是在仓库的根目录下执行的,要注意路径是否正确, 这里是读取指定目录下的version.txt来作为镜像的tag版本号
+      
+    - name: Get changed files in the kube-scheduler folder
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v29.0.7
+      with:
+        files: |
+          kube-scheduler/**
+    
+    # 只有指定目录下的文件变化时, 才触发构建, 以免每次提交都会重新所有构建任务
+    - name: Build and Push Docker Image if any file(s) in the kube-scheduler folder change
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      run: |
+        docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-scheduler:${{ steps.getversion.outputs.version }} ./kube-scheduler
+        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-scheduler:${{ steps.getversion.outputs.version }}
+
+
+
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+  build__pause: #这里是job_id,需要唯一
+    runs-on: ubuntu-latest #指定在什么样的环境下运行该job
+    steps:
+    - uses: actions/checkout@v3 # pull代码到运行服务器上
+    
+    - name: Login to Aliyun Container Registry (ACR)
+      uses: aliyun/acr-login@v1 # 使用阿里云镜像服务action
+      with:
+        login-server: registry.cn-hangzhou.aliyuncs.com # 务必正确填写镜像容器服务的登录地址
+        region-id: cn-hangzhou # 务必正确填写镜像容器服务的登录地址
+        username: "${{ secrets.ALIYUN_ACR_USERNAME }}" # 引用GitHub repo设置的镜像容器服务用户名
+        password: "${{ secrets.ALIYUN_ACR_PASSWORD }}" # 引用GitHub repo设置的镜像容器服务密码, 该密码是在acr中设置的固定密码
+    
+    - name: Read VERSION file
+      id: getversion #这个id在后面的步骤中会使用到, 用于读取这里的变量
+      run: echo "::set-output name=version::$(cat ./pause/version.txt)" # 用于标记容器版本号, 任何命令都是在仓库的根目录下执行的,要注意路径是否正确, 这里是读取指定目录下的version.txt来作为镜像的tag版本号
+      
+    - name: Get changed files in the pause folder
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v29.0.7
+      with:
+        files: |
+          pause/**
+    
+    # 只有指定目录下的文件变化时, 才触发构建, 以免每次提交都会重新所有构建任务
+    - name: Build and Push Docker Image if any file(s) in the pause folder change
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      run: |
+        docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/pause:${{ steps.getversion.outputs.version }} ./pause
+        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/pause:${{ steps.getversion.outputs.version }}        
