@@ -14,9 +14,10 @@ jobs:
         region-id: cn-hangzhou # 务必正确填写镜像容器服务的登录地址
         username: "${{ secrets.ALIYUN_ACR_USERNAME }}" # 引用GitHub repo设置的镜像容器服务用户名
         password: "${{ secrets.ALIYUN_ACR_PASSWORD }}" # 引用GitHub repo设置的镜像容器服务密码
+    - name: Read VERSION file
+      id: getversion
+      run: echo "::set-output name=version::$(cat version.txt)" # 用于标记容器版本号
     - name: Build and Push Docker Image
-      env:
-        IMAGE_TAG: ${{ github.sha }} # 用于标记容器版本号
       run: |
-        docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-apiserver:$IMAGE_TAG ./kube-apiserver
-        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-apiserver:$IMAGE_TAG
+        docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-apiserver:${{ steps.getversion.outputs.version }} ./kube-apiserver
+        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-apiserver:${{ steps.getversion.outputs.version }}
