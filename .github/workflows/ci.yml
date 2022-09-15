@@ -3,7 +3,7 @@ name: build image
 on: [push, pull_request] # 触发事件
 
 jobs:
-  build kube-apiserver: #这里是job_id,需要唯一
+  build__kube-apiserver: #这里是job_id,需要唯一
     runs-on: ubuntu-latest #指定在什么样的环境下运行该job
     steps:
     - uses: actions/checkout@v3 # pull代码到运行服务器上
