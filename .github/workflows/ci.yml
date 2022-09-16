@@ -37,6 +37,7 @@ jobs:
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/coredns:${{ steps.getversion.outputs.version }} ./coredns
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/coredns:${{ steps.getversion.outputs.version }}
         
+        
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
@@ -70,7 +71,8 @@ jobs:
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/etcd:${{ steps.getversion.outputs.version }} ./etcd
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/etcd:${{ steps.getversion.outputs.version }}
-
+        
+        
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
@@ -104,8 +106,8 @@ jobs:
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-apiserver:${{ steps.getversion.outputs.version }} ./kube-apiserver
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-apiserver:${{ steps.getversion.outputs.version }}
-
-
+        
+        
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
@@ -139,8 +141,8 @@ jobs:
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-controller-manager:${{ steps.getversion.outputs.version }} ./kube-controller-manager
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-controller-manager:${{ steps.getversion.outputs.version }}
-
-
+        
+        
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
@@ -174,9 +176,8 @@ jobs:
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-proxy:${{ steps.getversion.outputs.version }} ./kube-proxy
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-proxy:${{ steps.getversion.outputs.version }}
-
-
-
+        
+        
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
@@ -210,9 +211,8 @@ jobs:
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-scheduler:${{ steps.getversion.outputs.version }} ./kube-scheduler
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/kube-scheduler:${{ steps.getversion.outputs.version }}
-
-
-
+        
+        
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
@@ -245,4 +245,6 @@ jobs:
       if: steps.changed-files-specific.outputs.any_changed == 'true'
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/pause:${{ steps.getversion.outputs.version }} ./pause
-        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/pause:${{ steps.getversion.outputs.version }}        
+        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/pause:${{ steps.getversion.outputs.version }}
+        
+        
