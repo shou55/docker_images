@@ -248,3 +248,36 @@ jobs:
         docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/pause:${{ steps.getversion.outputs.version }}
         
         
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
+  build__metrics-server: #这里是job_id,需要唯一
+    runs-on: ubuntu-latest #指定在什么样的环境下运行该job
+    steps:
+    - uses: actions/checkout@v3 # pull代码到运行服务器上
+    
+    - name: Login to Aliyun Container Registry (ACR)
+      uses: aliyun/acr-login@v1 # 使用阿里云镜像服务action
+      with:
+        login-server: registry.cn-hangzhou.aliyuncs.com # 务必正确填写镜像容器服务的登录地址
+        region-id: cn-hangzhou # 务必正确填写镜像容器服务的登录地址
+        username: "${{ secrets.ALIYUN_ACR_USERNAME }}" # 引用GitHub repo设置的镜像容器服务用户名
+        password: "${{ secrets.ALIYUN_ACR_PASSWORD }}" # 引用GitHub repo设置的镜像容器服务密码, 该密码是在acr中设置的固定密码
+    
+    - name: Read VERSION file
+      id: getversion #这个id在后面的步骤中会使用到, 用于读取这里的变量
+      run: echo "::set-output name=version::$(cat ./metrics-server/version.txt)" # 用于标记容器版本号, 任何命令都是在仓库的根目录下执行的,要注意路径是否正确, 这里是读取指定目录下的version.txt来作为镜像的tag版本号
+      
+    - name: Get changed files in the metrics-server folder
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v29.0.7
+      with:
+        files: |
+          metrics-server/**
+    
+    # 只有指定目录下的文件变化时, 才触发构建, 以免每次提交都会重新所有构建任务
+    - name: Build and Push Docker Image if any file(s) in the metrics-server folder change
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      run: |
+        docker build -t registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/metrics-server:${{ steps.getversion.outputs.version }} ./metrics-server
+        docker push registry.cn-hangzhou.aliyuncs.com/tomdog_gcr/metrics-server:${{ steps.getversion.outputs.version }}
